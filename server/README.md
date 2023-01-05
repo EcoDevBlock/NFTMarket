@@ -17,3 +17,7 @@ Copy the address of the deployed token contract
 
 1. cd migrations
    paste the address in 4_deploy_nft.js
+2. cd ..
+3. npm run deploy:nft
+
+To the start the appliaction server, run "node server.js"

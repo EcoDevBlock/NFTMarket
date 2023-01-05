@@ -53,6 +53,14 @@ app.post("/mint", (req,res) => {
     })
 })
 
+app.post("/token/balance", (req,res) => {
+    const {address} = req.body;
+    truffle_connect.getContractBalance(address, (answer) => {
+        res.send(answer);
+    })
+})
+
+
 app.post("/product/create", async (req, res) => {
    const {from, owner, name, description, price} =  req.body;
    truffle_connect.createProduct(from, owner,name, description, price, (answer) => {
@@ -71,6 +79,12 @@ app.post("/product/purchase", async (req,res) => {
 app.post("/product/list", async (req,res) => {
     const {owner} = req.body
     truffle_connect.getProductByUser(owner, (answer) => {
+        res.send(answer);
+    })
+})
+
+app.get("/nft/balance", (req,res) => {
+    truffle_connect.getBalance((answer) => {
         res.send(answer);
     })
 })

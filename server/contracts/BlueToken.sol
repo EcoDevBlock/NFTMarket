@@ -22,7 +22,7 @@ contract BlueToken is ERC20 {
     }
 
     function mint(address _to) public returns (bool) {
-        _mint(_to, 1 * (10**decimals()));
+        _mint(_to, 10 * (10**decimals()));
         return true;
     }
 
@@ -47,5 +47,33 @@ contract BlueToken is ERC20 {
     {
         require(user[_name].addr != address(0), "User Not exsists");
         return (user[_name].addr, balances[user[_name].addr]);
+    }
+
+    function getContractBalance(address ContractAddress)
+        public
+        view
+        returns (uint256)
+    {
+        return ContractAddress.balance;
+    }
+
+    function transferFrom(
+        address _owner,
+        address _buyer,
+        uint256 numTokens
+    ) public virtual override returns (bool) {
+        uint256 val = numTokens * (10**18);
+        balances[_owner] -= val;
+        balances[_buyer] += val;
+        return true;
+    }
+
+    function destroy() public onlyOwner {
+        selfdestruct(owner);
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
     }
 }

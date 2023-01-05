@@ -123,11 +123,27 @@ module.exports = {
         })
     },
 
+    getContractBalance: function(address, callback) {
+        const self = this;
+        BlueToken.setProvider(self.web3.currentProvider);
+        let meta;
+        BlueToken.deployed().then(function(instance){
+            meta = instance;
+            return meta.getContractBalance(address)
+        }).then(resp => {
+            callback(resp)
+        }).catch(err => {
+            console.log(err)
+            callback("Error: something went wrong")
+        })
+    },
+
     createProduct: async function(from, owner,name, description, price, callback) {
         const self = this;
         MyNft.setProvider(self.web3.currentProvider);
         let meta;
         let accounts =  await self.web3.eth.getAccounts();
+        console.log(`from ${from} owner ${owner} name ${name} description ${description} price ${price}`)
         MyNft.deployed().then(function(instance){
             meta = instance;
             return meta.safeMint(from, owner,name, description, price, {from: accounts[0]})
@@ -175,5 +191,20 @@ module.exports = {
             console.log(err);
             callback("ERROR: Something went wrong")
         })
-    }
+    },
+
+    getBalance: function(callback) {
+        const self = this;
+        MyNft.setProvider(self.web3.currentProvider);
+        let meta;
+        MyNft.deployed().then(function(instance){
+            meta = instance;
+            return meta.getBalance()
+        }).then(result => {
+            callback(result)
+        }).catch(err  => {
+            console.log(err);
+            callback("ERROR: Something went wrong")
+        })
+    } 
 }

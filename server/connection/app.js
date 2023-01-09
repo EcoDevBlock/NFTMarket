@@ -1,4 +1,3 @@
-// const HelloWorld_Artifact = artifacts.require("HelloWorld");
 const contract = require('truffle-contract');
 const HelloWorld_Artifact = require('../build/contracts/HelloWorld.json');
 const BlueToken_Artifact =  require('../build/contracts/BlueToken.json');
@@ -6,13 +5,6 @@ const MyNft_Artifact = require("../build/contracts/MyNft.json")
 const HelloWorld = contract(HelloWorld_Artifact);
 const BlueToken = contract(BlueToken_Artifact);
 const MyNft = contract(MyNft_Artifact)
-// const init = async () => {
-//     const HelloWorld_Artifact = artifacts.require("HelloWorld");
-//     const helloWorld = await HelloWorld_Artifact.deployed();
-//     const result  = await helloWorld.message();
-// }
-
-// init()
 
 module.exports = {
     start: function(callback) {
@@ -35,38 +27,6 @@ module.exports = {
             callback(self.accounts)
         })
     },
-    setHelloMessage: function(greeting, callback) {
-        const self = this;
-        HelloWorld.setProvider(self.web3.currentProvider);
-        let meta;
-        HelloWorld.deployed().then(function(instance){
-            meta = instance;
-            return meta.setHelloMessage(greeting, {from: self.web3.utils.toChecksumAddress("0xC0AaC2931c3df8f84e4d30bE6205De06b85F097C")})
-        }).then(function(value){
-            callback(value)
-        }).catch(err => {
-            console.log(err)
-            callback("ERROR: something went wrong!")
-        })
-        
-    },
-
-    getMessage: function(callback){
-        const self = this;
-        HelloWorld.setProvider(self.web3.currentProvider);
-        let meta;
-        HelloWorld.deployed().then(function(instance){
-            meta = instance;
-            return meta.getMessage()
-        }).then(result => {
-            callback(result)
-        }).catch(err => {
-            console.log(err)
-            callback("Error: something went wrong!")
-        })
-        
-    },
-
     mint: async function(_to, callback) {
         const self = this;
         BlueToken.setProvider(self.web3.currentProvider);
@@ -116,7 +76,8 @@ module.exports = {
             meta = instance;
             return meta.signIn(name)
         }).then(resp => {
-            callback(resp)
+            const result = {address: resp[0] , balance: resp[1]}
+            callback(result)
         }).catch(err => {
             console.log(err)
             callback("Error: something went wrong")
@@ -190,6 +151,41 @@ module.exports = {
         }).catch(err  => {
             console.log(err);
             callback("ERROR: Something went wrong")
+        })
+    },
+
+    listOfPRoducts: function(callback) {
+        const self = this;
+        MyNft.setProvider(self.web3.currentProvider);
+        let meta;
+        MyNft.deployed().then(function(instance){
+            meta = instance;
+            return meta.listOfPRoducts()
+        }).then(result => {
+            callback(result)
+        }).catch(err => {
+            console.log(err)
+            callback("ERROR: Something went worng")
+        })
+    },
+
+    buyProductByTokenId: async function(tokenId, toOwnerAddress, callback) {
+        const self = this;
+        MyNft.setProvider(self.web3.currentProvider);
+        let meta;
+        let accounts =  await self.web3.eth.getAccounts();
+        MyNft.deployed().then(function(instance){
+            meta = instance;
+            return meta.buyProductByTokenId(tokenId, toOwnerAddress, {from: accounts[0]})
+        }).then(product => {
+            if(product){
+                callback(product)
+            }else{
+                callback("Product Purchase failed")
+            }
+        }).catch(err => {
+            console.log(err)
+            callback("ERROR: Something went worng")
         })
     },
 

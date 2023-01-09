@@ -20,21 +20,6 @@ app.get('/getAccounts', (req, res) => {
 })
 ,
 
-app.get("/setmessage/:message", (req,res) => {
-    console.log("**** GET /setmessage/messages ****");
-    const greeting = req.params["message"];
-    truffle_connect.setHelloMessage(greeting, (answer)=>{
-        res.send(answer)
-    })
-})
-
-app.get("/getMessage", (req,res) => {
-    console.log("**** GET /getmessage/ ****");
-    truffle_connect.getMessage((answer)=>{
-        res.send(answer)
-    })
-})
-
 app.post("/register", async (req,res) => {
     const {name, password} = req.body
     const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"))
@@ -70,8 +55,8 @@ app.post("/product/create", async (req, res) => {
 })
 
 app.post("/product/purchase", async (req,res) => {
-    const {owner, _to, indx, val} = req.body;
-    truffle_connect.buyProduct(owner, _to, indx, val, (answer) => {
+    const {tokenId, buyerAddress} = req.body;
+    truffle_connect.buyProductByTokenId(tokenId, buyerAddress, (answer) => {
         res.send(answer);
     })
 })
@@ -80,6 +65,12 @@ app.post("/product/list", async (req,res) => {
     const {owner} = req.body
     truffle_connect.getProductByUser(owner, (answer) => {
         res.send(answer);
+    })
+})
+
+app.get("/product/all", (req,res) => {
+    truffle_connect.listOfPRoducts(response => {
+        res.send(response)
     })
 })
 
@@ -97,10 +88,6 @@ app.post("/login", (req,res) => {
 })
 
 app.listen(port, () => {
-
-    // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
     truffle_connect.web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
-  
     console.log("Express Listening at http://localhost:" + port);
-  
 });

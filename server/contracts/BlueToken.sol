@@ -11,6 +11,7 @@ contract BlueToken is ERC20 {
         address addr;
         string name;
         string password;
+        uint256 balance;
     }
 
     mapping(string => UserDetail) user;
@@ -46,15 +47,15 @@ contract BlueToken is ERC20 {
         returns (address, uint256)
     {
         require(user[_name].addr != address(0), "User Not exsists");
-        return (user[_name].addr, balances[user[_name].addr]);
+        return (user[_name].addr, balanceOf(user[_name].addr));
     }
 
-    function getContractBalance(address ContractAddress)
+    function getContractBalance(address userAddress)
         public
         view
         returns (uint256)
     {
-        return ContractAddress.balance;
+        return balanceOf(userAddress);
     }
 
     function transferFrom(
@@ -65,6 +66,15 @@ contract BlueToken is ERC20 {
         uint256 val = numTokens * (10**18);
         balances[_owner] -= val;
         balances[_buyer] += val;
+        return true;
+    }
+
+    function transfer(
+        address _from,
+        address _to,
+        uint256 val
+    ) public returns (bool) {
+        _transfer(_from, _to, val);
         return true;
     }
 

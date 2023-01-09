@@ -18,7 +18,11 @@ contract MyNft is ERC721, Ownable {
         uint256 price;
     }
 
+    Product[] public products;
+
     mapping(string => Product[]) OwnerList;
+
+    mapping(uint256 => Product) MintedNFT;
 
     Counters.Counter private _tokenIdCounter;
 
@@ -33,7 +37,7 @@ contract MyNft is ERC721, Ownable {
         string memory _description,
         uint256 _price
     ) public returns (bool) {
-        tokenAddress.transferFrom(_from, address(this), _price * (10**18));
+        // tokenAddress.transferFrom(_from, address(this), _price * (10**18));
         // tokenAddress.transfer(_from, _price * (10 ** 18));
         Product memory product = Product({
             name: _name,
@@ -43,22 +47,25 @@ contract MyNft is ERC721, Ownable {
         });
         OwnerList[_owner].push(product);
         _tokenIdCounter.increment();
-        _safeMint(_from, 1);
+        uint256 tokenId = _tokenIdCounter.current();
+        _safeMint(_from, tokenId);
+        MintedNFT[tokenId] = product;
+        products.push(product);
         return true;
     }
 
-    function buyProduct(
-        string memory owner,
-        address _to,
-        uint256 indx,
-        uint256 val
-    ) external returns (bool) {
-        Product storage product = OwnerList[owner][indx];
-        require(product.price <= val, "Insufficient amount");
-        product.owner = _to;
-        tokenAddress.transfer(_to, val * (10**18));
-        return true;
-    }
+    // function buyProduct(
+    //     string memory owner,
+    //     address _to,
+    //     uint256 _tokenId,
+    //     uint256 val
+    // ) external returns (bool) {
+    //     Product storage product = MintedNFT[_tokenId];
+    //     require(product.price <= val, "Insufficient amount");
+    //     tokenAddress.transfer(_to, address(this), val * (10**18));
+    //     product.owner = _to;
+    //     return true;
+    // }
 
     function setProductPrice(
         string memory owner,
@@ -76,6 +83,32 @@ contract MyNft is ERC721, Ownable {
         returns (Product[] memory)
     {
         return OwnerList[_owner];
+    }
+
+    function getProductByTokenId(uint256 _tokenId)
+        external
+        view
+        returns (Product memory)
+    {
+        return MintedNFT[_tokenId];
+    }
+
+    function buyProductByTokenId(uint256 _tokenId, address _toownerAddress)
+        external
+        returns (Product memory)
+    {
+        Product memory product = MintedNFT[_tokenId];
+        tokenAddress.transferFrom(
+            product.owner,
+            _toownerAddress,
+            product.price
+        );
+        product.owner = _toownerAddress;
+        return product;
+    }
+
+    function listOfPRoducts() external view returns (Product[] memory) {
+        return products;
     }
 
     function getBalance() external view returns (uint256) {

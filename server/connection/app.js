@@ -100,15 +100,15 @@ module.exports = {
         })
     },
 
-    createProduct: async function(from, owner,name, description, price, callback) {
+    createProduct: async function(from,name, description, price, callback) {
         const self = this;
         MyNft.setProvider(self.web3.currentProvider);
         let meta;
         let accounts =  await self.web3.eth.getAccounts();
-        console.log(`from ${from} owner ${owner} name ${name} description ${description} price ${price}`)
+       // console.log(`from ${from} owner ${owner} name ${name} description ${description} price ${price}`)
         MyNft.deployed().then(function(instance){
             meta = instance;
-            return meta.safeMint(from, owner,name, description, price, {from: accounts[0]})
+            return meta.safeMint(from,name, description, price, {from: accounts[0]})
         }).then(isSuccess => {
         if(isSuccess){
                 callback("Product created successfully")
@@ -157,22 +157,28 @@ module.exports = {
         })
     },
 
-    listOfPRoducts: function(callback) {
+    listOfProducts: async function(callback) {
         const self = this;
         MyNft.setProvider(self.web3.currentProvider);
         let meta;
+        let products = [];
         MyNft.deployed().then(function(instance){
             meta = instance;
-            return meta.listOfPRoducts()
-        }).then(result => {
-            callback(result)
+            return meta.getTotalNFTMinted()
+        }).then(async function(totalcount) {
+            console.log(`total NFT Minted: ${totalcount}`)
+            for(let i = 1; i <= totalcount; i++){
+                const product = await meta.getProductByTokenId(i);
+                products.push(product)
+            }
+            callback(products)
         }).catch(err => {
             console.log(err)
             callback("ERROR: Something went worng")
         })
     },
 
-    buyProductByTokenId: async function(tokenId, toOwnerAddress, amount, callback) {
+    buyProductByTokenId: async function(tokenId, toOwnerAddress, fromOwnerAddress, amount, callback) {
         const self = this;
         MyNft.setProvider(self.web3.currentProvider);
         BlueToken.setProvider(self.web3.currentProvider);
@@ -185,11 +191,21 @@ module.exports = {
                 console.log("Approval is successfull")
                 MyNft.deployed().then(function(instance){
                     meta = instance;
-                    return meta.buyProductByTokenId(tokenId, toOwnerAddress, {from: toOwnerAddress})
+                    return meta.buyProductByTokenId(tokenId, toOwnerAddress, fromOwnerAddress, {from: toOwnerAddress})
                 }).then(product => {
                     if(product){
-                        console.log("Product purchase is successfull")
-                        callback(product)
+                        console.log("Product purchase is successfull");
+                        meta.transferFrom(fromOwnerAddress,toOwnerAddress, tokenId, {from: fromOwnerAddress}).then( response => {
+                            if(response) {
+                                console.log("Product ownership transfered successfully!")
+                                callback(response)
+                            }else {
+                                console.log("error in ownership transfet")
+                            }
+                        }).catch(err => {
+                            console.log("Error: Something went wront NFT ownership transfer");
+                            console.log(err)
+                        })
                     }else{
                         callback("Product Purchase failed")
                     }
@@ -202,9 +218,21 @@ module.exports = {
             console.log(err)
             callback("ERROR: Something went wrong in approval")
         }) 
-        
     },
-
+    getOwnerHistoryByTokenId: function(tokenid, callback) {
+        const self = this;
+        MyNft.setProvider(self.web3.currentProvider);
+        let meta;
+        MyNft.deployed().then(function(instance){
+            meta = instance;
+            return meta.getOwnerHistoryByTokenId(tokenid)
+        }).then(function(response){
+            callback(response)
+        }).catch(function(err){
+            console.log(err);
+            callback("Error: something went wrong")
+        })
+    },
     getBalance: function(callback) {
         const self = this;
         MyNft.setProvider(self.web3.currentProvider);

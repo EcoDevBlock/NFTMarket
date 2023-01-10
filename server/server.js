@@ -55,17 +55,24 @@ app.post("/token/balance", (req,res) => {
 
 
 app.post("/product/create", async (req, res) => {
-   const {from, owner, name, description, price} =  req.body;
-   truffle_connect.createProduct(from, owner,name, description, price, (answer) => {
+   const {from, name, description, price} =  req.body;
+   truffle_connect.createProduct(from,name, description, price, (answer) => {
         res.send(answer)
    })
 
 })
 
 app.post("/product/purchase", async (req,res) => {
-    const {tokenId, buyerAddress, amount} = req.body;
-    truffle_connect.buyProductByTokenId(tokenId, buyerAddress, amount, (answer) => {
+    const {tokenId, buyerAddress, fromOwnerAddress, amount} = req.body;
+    truffle_connect.buyProductByTokenId(tokenId, buyerAddress, fromOwnerAddress, amount, (answer) => {
         res.send(answer);
+    })
+})
+
+app.post("/product/owner/list", (req,res) => {
+    const {tokenid} = req.body;
+    truffle_connect.getOwnerHistoryByTokenId(tokenid, (answer) => {
+            res.send(answer)
     })
 })
 
@@ -77,7 +84,8 @@ app.post("/product/list", async (req,res) => {
 })
 
 app.get("/product/all", (req,res) => {
-    truffle_connect.listOfPRoducts(response => {
+    let products = [];
+    truffle_connect.listOfProducts(response => {
         res.send(response)
     })
 })

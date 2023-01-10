@@ -20,4 +20,11 @@ Copy the address of the deployed token contract
 2. cd ..
 3. npm run deploy:nft
 
+copy the address of the deployed nft and create a .env file
+paste the address of the deployed nft as below
+
+```
+CONTRACT_MYNFT="0xC8E954e0b296d9d47E39f7055c8b359C5CF33DA3"
+```
+
 To the start the appliaction server, run "node server.js"

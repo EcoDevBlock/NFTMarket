@@ -4,15 +4,21 @@ const app = express();
 const port = 3000 || process.env.PORT;
 const Web3 = require('web3');
 const truffle_connect = require('./connection/app.js');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const session = require("express-session");
 
-
+let accounts;
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json())
+app.use(bodyParser.json()); 
+app.use(session({
+    secret: 'secret-key',
+    resave: false,
+    saveUninitialized: false
+}));
 
-app.get('/getAccounts', (req, res) => {
+app.get('/accounts', (req, res) => {
     console.log("**** GET /getAccounts ****");
     truffle_connect.start(function (answer) {
       res.send(answer);
@@ -22,10 +28,12 @@ app.get('/getAccounts', (req, res) => {
 
 app.post("/register", async (req,res) => {
     const {name, password} = req.body
-    const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"))
-    const account = await web3.eth.accounts.create(name);
-    console.log(account)
-    truffle_connect.signUp(account.address, name, password, (answer) => {
+    // const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"))
+        console.log("***** New Account ******")
+        if(accounts.length > 0){
+            req.session.account = accounts.pop()
+        }
+    truffle_connect.signUp(req.session.account, name, password, (answer) => {
         res.send(answer)
     })
 
@@ -55,8 +63,8 @@ app.post("/product/create", async (req, res) => {
 })
 
 app.post("/product/purchase", async (req,res) => {
-    const {tokenId, buyerAddress} = req.body;
-    truffle_connect.buyProductByTokenId(tokenId, buyerAddress, (answer) => {
+    const {tokenId, buyerAddress, amount} = req.body;
+    truffle_connect.buyProductByTokenId(tokenId, buyerAddress, amount, (answer) => {
         res.send(answer);
     })
 })
@@ -87,7 +95,9 @@ app.post("/login", (req,res) => {
     })
 })
 
-app.listen(port, () => {
+app.listen(port, async () => {
     truffle_connect.web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
+    accounts = await truffle_connect.web3.eth.getAccounts();
+    console.log(accounts)
     console.log("Express Listening at http://localhost:" + port);
 });

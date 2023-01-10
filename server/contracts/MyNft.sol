@@ -99,8 +99,8 @@ contract MyNft is ERC721, Ownable {
     {
         Product memory product = MintedNFT[_tokenId];
         tokenAddress.transferFrom(
-            product.owner,
             _toownerAddress,
+            product.owner,
             product.price
         );
         product.owner = _toownerAddress;

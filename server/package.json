@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile":"truffle compile",
+    "compile": "truffle compile",
     "deploy:token": "truffle deploy --f 3 --to 3 --network development",
     "deploy:nft": "truffle deploy --f 4 --to 4 --network development"
   },
@@ -15,7 +15,9 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.8.0",
     "body-parser": "^1.20.1",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "truffle-contract": "^4.0.31",
     "truffle-hdwallet-provider": "^1.0.17",
     "web3": "^1.8.1"

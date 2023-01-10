@@ -14,6 +14,12 @@ contract BlueToken is ERC20 {
         uint256 balance;
     }
 
+    event BeforePurchase(
+        string indexed _name,
+        address indexed _from,
+        address indexed _to
+    );
+
     mapping(string => UserDetail) user;
     mapping(address => uint256) balances;
 
@@ -58,24 +64,41 @@ contract BlueToken is ERC20 {
         return balanceOf(userAddress);
     }
 
-    function transferFrom(
-        address _owner,
-        address _buyer,
-        uint256 numTokens
-    ) public virtual override returns (bool) {
-        uint256 val = numTokens * (10**18);
-        balances[_owner] -= val;
-        balances[_buyer] += val;
-        return true;
-    }
+    // function approve(
+    //     address _owner,
+    //     address _spender,
+    //     uint256 amount
+    // ) public returns (bool) {
+    //     return super._approve(_owner, _spender, amount);
+    // }
 
-    function transfer(
+    // function transferFrom(
+    //     address _owner,
+    //     address _buyer,
+    //     uint256 numTokens
+    // ) public virtual override returns (bool) {
+    //     uint256 val = numTokens * (10**18);
+    //     balances[_owner] -= val;
+    //     balances[_buyer] += val;
+    //     return true;
+    // }
+
+    // function transfer(
+    //     address _from,
+    //     address _to,
+    //     uint256 val
+    // ) public returns (bool) {
+    //     _transfer(_from, _to, val);
+    //     return true;
+    // }
+
+    function _beforeTokenTransfer(
         address _from,
         address _to,
-        uint256 val
-    ) public returns (bool) {
-        _transfer(_from, _to, val);
-        return true;
+        uint256 amount
+    ) internal virtual override {
+        super._beforeTokenTransfer(_from, _to, amount);
+        emit BeforePurchase("beforepurchase", _from, _to);
     }
 
     function destroy() public onlyOwner {

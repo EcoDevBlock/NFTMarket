@@ -1,4 +1,5 @@
 const contract = require('truffle-contract');
+require('dotenv').config();
 const HelloWorld_Artifact = require('../build/contracts/HelloWorld.json');
 const BlueToken_Artifact =  require('../build/contracts/BlueToken.json');
 const MyNft_Artifact = require("../build/contracts/MyNft.json")
@@ -122,9 +123,11 @@ module.exports = {
 
     buyProduct:  async function(owner, _to, indx, val, callback) {
         const self = this;
+       
         MyNft.setProvider(self.web3.currentProvider);
         let meta;
         let accounts =  await self.web3.eth.getAccounts();
+       
         MyNft.deployed().then(function(instance){
             meta = instance;
             return meta.buyProduct(owner, _to, indx, val, {from: accounts[0]})
@@ -169,24 +172,37 @@ module.exports = {
         })
     },
 
-    buyProductByTokenId: async function(tokenId, toOwnerAddress, callback) {
+    buyProductByTokenId: async function(tokenId, toOwnerAddress, amount, callback) {
         const self = this;
         MyNft.setProvider(self.web3.currentProvider);
+        BlueToken.setProvider(self.web3.currentProvider);
         let meta;
-        let accounts =  await self.web3.eth.getAccounts();
-        MyNft.deployed().then(function(instance){
-            meta = instance;
-            return meta.buyProductByTokenId(tokenId, toOwnerAddress, {from: accounts[0]})
-        }).then(product => {
-            if(product){
-                callback(product)
-            }else{
-                callback("Product Purchase failed")
+        // let accounts =  await self.web3.eth.getAccounts();
+        BlueToken.deployed().then(function(instance){
+            return instance.approve(process.env.CONTRACT_MYNFT, amount, {from: toOwnerAddress})
+        }).then(isSuccess => {
+            if(isSuccess) {
+                console.log("Approval is successfull")
+                MyNft.deployed().then(function(instance){
+                    meta = instance;
+                    return meta.buyProductByTokenId(tokenId, toOwnerAddress, {from: toOwnerAddress})
+                }).then(product => {
+                    if(product){
+                        console.log("Product purchase is successfull")
+                        callback(product)
+                    }else{
+                        callback("Product Purchase failed")
+                    }
+                }).catch(err => {
+                    console.log(err)
+                    callback("ERROR: Something went worng in purchase")
+                })
             }
         }).catch(err => {
             console.log(err)
-            callback("ERROR: Something went worng")
-        })
+            callback("ERROR: Something went wrong in approval")
+        }) 
+        
     },
 
     getBalance: function(callback) {

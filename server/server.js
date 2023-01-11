@@ -1,6 +1,7 @@
 // var HelloWorld = artifacts.require("HelloWorld");
 const express = require('express');
 const app = express();
+cors = require('cors')
 const port = 3000 || process.env.PORT;
 const Web3 = require('web3');
 const truffle_connect = require('./connection/app.js');
@@ -8,6 +9,8 @@ const bodyParser = require('body-parser');
 const session = require("express-session");
 
 let accounts;
+
+app.use(cors())
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -84,7 +87,6 @@ app.post("/product/list", async (req,res) => {
 })
 
 app.get("/product/all", (req,res) => {
-    let products = [];
     truffle_connect.listOfProducts(response => {
         res.send(response)
     })

@@ -169,7 +169,8 @@ module.exports = {
             console.log(`total NFT Minted: ${totalcount}`)
             for(let i = 1; i <= totalcount; i++){
                 const product = await meta.getProductByTokenId(i);
-                products.push(product)
+                const prd = {"title": product[0], "description": product[1], "ownerAddress": product[2], "price": product[3], "tokenid": product[4]}
+                products.push(prd)
             }
             callback(products)
         }).catch(err => {

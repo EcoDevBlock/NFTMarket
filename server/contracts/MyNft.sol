@@ -17,6 +17,7 @@ contract MyNft is ERC721, Ownable {
         string description;
         address owner;
         uint256 price;
+        uint256 tokenid;
     }
 
     mapping(uint256 => address[]) OwnerList;
@@ -35,14 +36,15 @@ contract MyNft is ERC721, Ownable {
         string memory _description,
         uint256 _price
     ) public returns (bool) {
+        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter.current();
         Product memory product = Product({
             name: _name,
             description: _description,
             price: _price,
-            owner: _from
+            owner: _from,
+            tokenid: tokenId
         });
-        _tokenIdCounter.increment();
-        uint256 tokenId = _tokenIdCounter.current();
         _safeMint(_from, tokenId);
         MintedNFT[tokenId] = product;
         OwnerList[tokenId].push(_from);

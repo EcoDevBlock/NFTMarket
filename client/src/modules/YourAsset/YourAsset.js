@@ -38,18 +38,6 @@ const YourAsset = () => {
                 dispatch({ type: 'HIDE_LOADER' });
             }
     }
-
-    const deleteAsset = (el) => {
-        axios.delete('http://localhost:5000/api/asset/delete', { data: el }).then(res => {
-            if (res.status === 200) {
-                dispatch(fetchAssets(param));
-                setShowToast(true);
-                setClassProp('bg-success show');
-                setToastMsg("Asset Deleted Successfully.");
-                setTimeout(() => setShowToast(false), 3000);
-            }
-        });
-    }
     const getBalance =  async(dispatch) => {
         const res=await axios.post('http://localhost:5000/token/balance', { address:sessionStorage.getItem("userId") })
             if (res.status === 200) {
@@ -60,33 +48,7 @@ const YourAsset = () => {
                 dispatch({ type: 'HIDE_LOADER' });
             }
     }
-    const buyAsset = (p) => {
-        if (token.price > bal) {
-            setShowToast(true);
-            setClassProp('bg-danger show');
-            setToastMsg("You Dont have enough Tokens.");
-            setTimeout(() => setShowToast(false), 3000);
-            return;
-        }
-        axios.post('http://localhost:5000/product/purchase', { tokenId:p.tokenid,
-        buyerAddress:sessionStorage.getItem('userId'),
-        fromOwnerAddress:p.ownerAddress,
-        amount:p.price }).then(res => {
-            if (res.status === 200) {
-                dispatch(fetchAssets(param));
-                setShowToast(true);
-                setClassProp('bg-success show');
-                setToastMsg("Asset Purchased.");
-                setTimeout(() => setShowToast(false), 3000);
-            }
-        }).catch(error => {
-            setShowToast(true);
-            setClassProp('bg-danger show');
-            setToastMsg(error.response.data);
-            setTimeout(() => setShowToast(false), 3000);
-        });
 
-    }
     return (isLoading ? <PlaceHolder btnColor={btnColor}/> : (assets.length > 0 ? (
         <div className="mt-4">
             <div className="row mx-0 justify-content-center">

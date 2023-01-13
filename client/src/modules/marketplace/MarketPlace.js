@@ -39,17 +39,6 @@ const MarketPlace = () => {
             }
     }
 
-    const deleteAsset = (el) => {
-        axios.delete('http://localhost:5000/api/asset/delete', { data: el }).then(res => {
-            if (res.status === 200) {
-                dispatch(fetchAssets(param));
-                setShowToast(true);
-                setClassProp('bg-success show');
-                setToastMsg("Asset Deleted Successfully.");
-                setTimeout(() => setShowToast(false), 3000);
-            }
-        });
-    }
     const getBalance =  async(dispatch) => {
         const res=await axios.post('http://localhost:5000/token/balance', { address:sessionStorage.getItem("userId") })
             if (res.status === 200) {

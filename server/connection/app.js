@@ -28,23 +28,33 @@ module.exports = {
             callback(self.accounts)
         })
     },
-    mint: async function(_to, callback) {
+    mint: async function(_to, _amount, callback) {
         const self = this;
         BlueToken.setProvider(self.web3.currentProvider);
         let meta;
-        let accounts =  await self.web3.eth.getAccounts();
         BlueToken.deployed().then(function(instance){
             meta = instance;
-            return meta.mint(_to, {from: accounts[0]})
-        }).then(isSuccess => {
-            if(isSuccess){
-                callback("Mined successfully")
-            }else{
-                callback("Mining failed")
-            }
-        }).catch(err => {
-            console.log(err);
-            callback("ERROR: something went wrong")
+            meta.sendTransaction({from: _to, value: _amount}).then(isSuccess => {
+                if(isSuccess){
+                     meta.mint(_to, _amount, {from: _to}).then(isMintSuccessfull => {
+                        if(isMintSuccessfull){
+                            callback("Minted susscessfully")
+                        }else{
+                            callback("Mint unsuccessfull")
+                        }
+                     }).catch(err => {
+                        console.log(err)
+                        callback("Error: Something went wrong")
+                     })
+                }else {
+                    callback("Error: sending ethers to Token Contract unsuccessfull")
+                }
+
+            }).catch(err => {
+                console.log(err)
+                callback("Error: something went wrong in sending ethers to Token Contract")
+            })
+            
         })
     },
 
@@ -85,13 +95,13 @@ module.exports = {
         })
     },
 
-    getContractBalance: function(address, callback) {
+    getTokenBalance: function(address, callback) {
         const self = this;
         BlueToken.setProvider(self.web3.currentProvider);
         let meta;
         BlueToken.deployed().then(function(instance){
             meta = instance;
-            return meta.getContractBalance(address)
+            return meta.getTokenBalance(address)
         }).then(resp => {
             callback(resp)
         }).catch(err => {

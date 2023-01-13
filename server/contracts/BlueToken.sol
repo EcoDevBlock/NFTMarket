@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract BlueToken is ERC20 {
     address payable public owner;
+    uint256 public rate = 1;
 
     struct UserDetail {
         address addr;
@@ -21,17 +22,19 @@ contract BlueToken is ERC20 {
     );
 
     mapping(string => UserDetail) user;
-    mapping(address => uint256) balances;
 
     constructor() ERC20("BlueToken", "BTK") {
         _mint(msg.sender, 10 * (10**decimals()));
         owner = payable(msg.sender);
     }
 
-    function mint(address _to) public returns (bool) {
-        _mint(_to, 10 * (10**decimals()));
+    function mint(address payable _to, uint256 amount) public returns (bool) {
+        require(amount > 0, "give amount greater than zero");
+        _mint(_to, amount * (10**decimals()));
         return true;
     }
+
+    receive() external payable {}
 
     function signUp(
         address _addr,
@@ -42,8 +45,6 @@ contract BlueToken is ERC20 {
         user[_name].addr = _addr;
         user[_name].name = _name;
         user[_name].password = _password;
-        _mint(_addr, 1 * (10**decimals()));
-        balances[_addr] = balances[_addr] + (1 * (10**decimals()));
         return true;
     }
 
@@ -56,7 +57,11 @@ contract BlueToken is ERC20 {
         return (user[_name].addr, balanceOf(user[_name].addr));
     }
 
-    function getContractBalance(address userAddress)
+    function userBalance(address payable _addr) public view returns (uint256) {
+        return _addr.balance;
+    }
+
+    function getTokenBalance(address userAddress)
         public
         view
         returns (uint256)

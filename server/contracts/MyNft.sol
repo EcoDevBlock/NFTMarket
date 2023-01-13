@@ -74,12 +74,17 @@ contract MyNft is ERC721, Ownable {
         address _fromownerAddress
     ) external returns (Product memory) {
         Product memory product = MintedNFT[_tokenId];
+        require(
+            tokenAddress.balanceOf(_toownerAddress) >= product.price,
+            "Insufficient Balance"
+        );
+        require(product.owner == _fromownerAddress, "Incorrect From owner");
         tokenAddress.transferFrom(
             _toownerAddress,
             product.owner,
             product.price
         );
-        require(product.owner == _fromownerAddress, "Incorrent From owner");
+
         product.owner = _toownerAddress;
         MintedNFT[_tokenId] = product;
         OwnerList[_tokenId].push(_toownerAddress);

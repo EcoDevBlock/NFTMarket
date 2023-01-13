@@ -43,15 +43,15 @@ app.post("/register", async (req,res) => {
 })
 
 app.post("/mint", (req,res) => {
-    const {addr} = req.body;
-    truffle_connect.mint(addr, (answer) => {
+    const {addr, amount } = req.body;
+    truffle_connect.mint(addr, amount, (answer) => {
         res.send(answer)
     })
 })
 
 app.post("/token/balance", (req,res) => {
     const {address} = req.body;
-    truffle_connect.getContractBalance(address, (answer) => {
+    truffle_connect.getTokenBalance(address, (answer) => {
         res.send(answer);
     })
 })
